@@ -92,7 +92,7 @@ export async function renderCropOverlayPng(sim: Simulation, src: string, crossOr
   }
   ctx.restore();
 
-  ctx.strokeStyle = "#34d399";
+  ctx.strokeStyle = "#059669"; // PwC buGreen
   ctx.lineWidth = Math.max(2, W / 500);
   ctx.strokeRect(vis.x, vis.y, vis.w, vis.h);
   return toBlob(canvas);
@@ -116,15 +116,15 @@ export async function renderComparisonPng(
   canvas.height = Math.round(height * scale);
   const ctx = canvas.getContext("2d")!;
   ctx.scale(scale, scale);
-  ctx.fillStyle = "#f4f4f5";
+  ctx.fillStyle = "#eeeff1"; // PwC grey150
   ctx.fillRect(0, 0, width, height);
   let x = gap;
   ctx.font = `500 ${22}px ui-monospace, monospace`;
   for (const { sim, label } of items) {
-    ctx.fillStyle = "#3f3f46";
+    ctx.fillStyle = "#111113"; // PwC grey1000
     ctx.fillText(label, x, gap + 22);
     drawComponent(ctx, img, sim, background, x, gap + labelH);
-    ctx.strokeStyle = "#a1a1aa";
+    ctx.strokeStyle = "#cbd1d6"; // PwC grey300
     ctx.lineWidth = 2;
     ctx.strokeRect(x, gap + labelH, sim.metrics.containerWidth, sim.metrics.containerHeight);
     x += sim.metrics.containerWidth + gap;
