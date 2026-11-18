@@ -28,7 +28,7 @@ export function Workspace() {
       <main
         id="workspace"
         className={cn(
-          "grid flex-1 transition-opacity duration-200",
+          "grid flex-1 grid-cols-[minmax(0,1fr)] transition-opacity duration-200",
           // Desktop: three stationary-height columns that scroll independently.
           "lg:h-[calc(100dvh-3.5rem)] lg:min-h-[640px] lg:grid-cols-[296px_minmax(0,1fr)_288px] xl:grid-cols-[312px_minmax(0,1fr)_300px]",
           hydrated ? "opacity-100" : "opacity-0",

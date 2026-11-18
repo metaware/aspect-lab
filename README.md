@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AspectLab
 
-## Getting Started
+**Responsive Image Simulator.** See how an image scales, crops and positions inside a responsive container at any viewport width, aspect ratio, container height strategy and CSS `object-fit`, without writing CSS or opening devtools.
 
-First, run the development server:
+Everything runs in the browser. There is no backend, and uploaded images never leave the device.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Getting started
+
+```sh
+pnpm install
+pnpm dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | What it does |
+| --- | --- |
+| `pnpm dev` | Development server |
+| `pnpm build` / `pnpm start` | Production build (fully static, deployable to Vercel as-is) |
+| `pnpm test` | Vitest unit tests for the geometry engine, optimizer, config and codegen |
+| `pnpm test:e2e` | Playwright end-to-end tests (builds into `.next-e2e`, so it is safe to run alongside `pnpm dev`) |
+| `pnpm typecheck` | `tsc --noEmit` (strict mode) |
+| `node scripts/generate-samples.mjs` | Regenerates the sample illustrations in `public/samples` |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Optional: set `NEXT_PUBLIC_GITHUB_URL` to show a GitHub link in the header.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What it does
 
-## Learn More
+- **Constant-scale component preview.** The container is rendered at its true CSS size and scaled by a fixed zoom, so the browser's own `object-fit`/`object-position` does the rendering. With a fixed height, the preview height stays the same at every viewport width. Auto-fit is an explicit mode and never silently replaces a manual zoom.
+- **Cropping preview.** Shows the whole original image. Regions removed by the source-asset crop, regions cropped by the component (hatched), and the visible region (green) are drawn separately, with per-edge measurements, the focal point, and the safe zone.
+- **Source sizing.** Native, *Crop to selected ratio* (the default) or *Resize with distortion*. Source-asset cropping and component cropping are separate operations and are reported separately.
+- **Container sizing.** Width can be full, percentage, fixed, fluid with a max, or a grid column span. Height can be fixed, a container aspect ratio, automatic, `vh/svh/dvh/lvh` of a *simulated* viewport, fluid `clamp()`, or content-based. Optional min/max width and height constraints are supported, and the inspector shows both requested and resolved sizes.
+- **Inspector.** Image, container, rendering, crop (CSS px and source px), empty space, quality warnings (upscaling, DPR shortfall, distortion, heavy cropping, focal point lost) and the safe zone.
+- **Analysis.**
+  - A cropping chart across a viewport range, with up to 6 ratios and 5 metrics, plus a table view.
+  - A multi-viewport and multi-ratio comparison at one shared scale.
+  - A breakpoint optimizer. For fixed-height, full-width cover it uses the closed form `√(min·max)/height`; for every other mode it searches numerically.
+  - A responsive asset planner, which finds the fewest variants that meet a crop tolerance.
+  - Code generation for HTML/CSS, Tailwind, React, `next/image` and art-directed `<picture>`.
+- **Sharing.** A versioned, readable URL (`/?v=1&vw=430&mode=fixed&h=640&ar=9:16&fit=cover&x=50&y=50`), JSON import/export and localStorage persistence. Local uploads are never put in links.
+- **Export.** Component PNG at the configured size × DPR, the original with its crop overlay, comparison strips, a CSV of the cropping analysis, recommendations JSON and implementation code. Remote images that block CORS are handled gracefully.
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/lib/geometry/        Pure TypeScript engine (no React)
+  object-fit.ts          CSS object-fit + object-position
+  cropping.ts            crop, coverage, empty space, source-pixel crop
+  resolve-container.ts   width/height modes and constraints
+  effective-source.ts    native / crop / distort source asset
+  focal-point.ts         focal-point → object-position (clamped)
+  safe-zone.ts           visible-rect intersection across a viewport range
+  simulate.ts            the single pipeline every preview, row and chart point uses
+src/lib/optimization/    aspect-ratio optimizer + asset planner
+src/lib/configuration/   defaults, Zod schema (with repair + migration hook), URL serialization
+src/lib/codegen/         implementation code generators
+src/store/               Zustand store: user config only; derived values are computed
+src/components/          layout · configuration · preview · inspector · analytics · export
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Design tokens (light and dark) live in `src/app/globals.css`, and components use only semantic tokens. The chart palette is validated for color-vision deficiencies in both themes.
 
-## Deploy on Vercel
+## Sample images
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The sample library contains original illustrations generated in code by `scripts/generate-samples.mjs`. They are part of this project and can be redistributed with it. The calibration grid and technical test image are generated at runtime at any aspect ratio.

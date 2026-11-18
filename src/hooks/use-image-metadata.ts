@@ -113,11 +113,14 @@ export function useSourceImage(): SourceImage {
       return Boolean(bytes);
     };
     if (probe()) return;
-    const t = setInterval(() => probe() && clearInterval(t), 500);
-    const stop = setTimeout(() => clearInterval(t), 8000);
+    // Cached responses report 0 bytes; a HEAD request reads Content-Length without downloading.
+    let cancelled = false;
+    fetch(src, { method: "HEAD" })
+      .then((r) => Number(r.headers.get("content-length")))
+      .then((bytes) => !cancelled && bytes > 0 && setSampleBytes(src, bytes))
+      .catch(() => {});
     return () => {
-      clearInterval(t);
-      clearTimeout(stop);
+      cancelled = true;
     };
   }, [image.source, result.src, result.generated, sampleBytes, setSampleBytes]);
 

@@ -289,9 +289,13 @@ export function Segmented<T extends string>({
             key={o.value}
             value={o.value}
             aria-label={o.ariaLabel}
+            data-active={o.value === value || undefined}
             className={cn(
-              "num flex items-center justify-center gap-1 truncate rounded-md border border-border bg-surface px-1.5 text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground",
-              "data-[state=on]:border-accent data-[state=on]:bg-accent-soft data-[state=on]:text-accent-text",
+              "flex min-w-0 items-center justify-center gap-1 truncate rounded-md border px-1.5 tabular-nums transition-colors [&_svg]:shrink-0",
+              // Styled from the value, not data-state: a Tooltip trigger overwrites data-state.
+              o.value === value
+                ? "border-accent bg-accent-soft text-accent-text"
+                : "border-border bg-surface text-muted-foreground hover:border-border-strong hover:text-foreground",
               size === "sm" ? "h-7 text-[11px]" : "h-8 text-xs",
             )}
           >

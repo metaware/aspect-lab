@@ -53,7 +53,7 @@ function Headline({ sim }: { sim: Simulation }) {
       <div className="rounded-lg border border-border bg-surface p-3.5">
         <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle-foreground">Image visible</div>
         <div className="mt-1 flex items-end justify-between gap-2">
-          <span className={cn("num text-[34px] font-semibold leading-none tracking-tight", color)} aria-live="polite">
+          <span className={cn("text-[34px] font-semibold leading-none tracking-tight tabular-nums", color)} aria-live="polite">
             {fmtPct(m.imageVisiblePercentage)}
           </span>
           <span className="num pb-0.5 text-xs text-muted-foreground">{fmtPct(m.imageCroppedPercentage)} crop</span>

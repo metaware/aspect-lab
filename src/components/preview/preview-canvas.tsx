@@ -126,7 +126,7 @@ export function PreviewCanvas() {
             size="sm"
             value={ws.view}
             onChange={(view) => patch("workspace", { view })}
-            className="w-[228px]"
+            className="w-[276px]"
             options={[
               { value: "component", label: <><Frame className="size-3" aria-hidden />Component</>, tooltip: "What users see in the actual component" },
               { value: "source", label: <><ImageIcon className="size-3" aria-hidden />Cropping</>, tooltip: "Which parts of the source image are lost" },

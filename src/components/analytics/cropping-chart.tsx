@@ -218,7 +218,7 @@ export function CroppingChart() {
               {ratios.map((r) => (
                 <Line
                   key={r}
-                  type="monotone"
+                  type="linear"
                   dataKey={r}
                   stroke={colorOf(r)}
                   strokeWidth={r === live.image.aspectRatio ? 2.5 : 2}

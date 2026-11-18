@@ -90,7 +90,7 @@ export function SourceImagePreview({
       ref={ref}
       viewBox={`0 0 ${W} ${H}`}
       className={cn("block h-auto w-full select-none", focalPicking && "cursor-crosshair", className)}
-      style={{ maxHeight, aspectRatio: `${W} / ${H}` }}
+      style={{ maxHeight, aspectRatio: `${W} / ${H}`, overflow: "visible" }}
       onClick={onClick}
       role="img"
       aria-label={`Original image ${Math.round(W)} by ${Math.round(H)} pixels. ${fmtPct(sim.metrics.imageVisiblePercentage)} of the source asset is visible in the component${sourceCropped ? `; the source asset itself discards ${fmtPct(sim.effective.sourceCroppedPercentage)} of the original` : ""}.`}
