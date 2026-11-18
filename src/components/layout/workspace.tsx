@@ -10,6 +10,7 @@ import { AppHeader } from "./app-header";
 import { ConfigurationPanel } from "./configuration-panel";
 import { InspectorPanel } from "@/components/inspector/inspector-panel";
 import { LiveAnnouncer, Toaster } from "./feedback";
+import { CreditsFooter } from "./credits";
 import { useKeyboardShortcuts } from "./shortcuts";
 import { cn } from "@/lib/utils";
 
@@ -61,9 +62,7 @@ export function Workspace() {
         </aside>
       </main>
       <AnalyticsSection />
-      <footer className="border-t border-border px-6 py-4 text-[11px] text-muted-foreground">
-        AspectLab runs entirely in your browser — uploaded images are never sent to a server.
-      </footer>
+      <CreditsFooter />
       <Toaster />
       <LiveAnnouncer />
     </div>
