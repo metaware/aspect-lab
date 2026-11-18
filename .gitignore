@@ -47,3 +47,7 @@ next-env.d.ts
 
 # local worktrees
 /.claude/worktrees/
+
+# static export (pnpm build:static)
+/out/
+/.next-export/

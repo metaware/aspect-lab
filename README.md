@@ -23,6 +23,18 @@ pnpm dev            # http://localhost:3000
 
 Optional: set `NEXT_PUBLIC_GITHUB_URL` to show a GitHub link in the header.
 
+## Deploying
+
+AspectLab is fully client-side, so it can be hosted as plain static files.
+
+| Host | Settings |
+| --- | --- |
+| **Render Static Site** (or any static host) | Build command `pnpm install --frozen-lockfile && pnpm run build:static`, publish directory `out` |
+| **Render Web Service** | Build command `pnpm install --frozen-lockfile && pnpm run build`, start command `pnpm start` |
+| **Vercel** | No configuration needed |
+
+A static host needs `build:static`. Plain `next build` produces a Node server bundle in `.next/`, not HTML files, so a static host would serve "Not Found" for every URL.
+
 ## What it does
 
 - **Constant-scale component preview.** The container is rendered at its true CSS size and scaled by a fixed zoom, so the browser's own `object-fit`/`object-position` does the rendering. With a fixed height, the preview height stays the same at every viewport width. Auto-fit is an explicit mode and never silently replaces a manual zoom.
