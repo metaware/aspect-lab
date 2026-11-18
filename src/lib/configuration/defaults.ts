@@ -22,7 +22,7 @@ export function createDefaultConfig(): SimulatorConfig {
       source: "sample",
       sampleId: "landscape",
       url: "",
-      aspectRatio: "9:16",
+      aspectRatio: "native",
       aspectRatioStrategy: "crop",
       focalPoint: null,
       keepFocalCentered: false,

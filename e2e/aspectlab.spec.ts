@@ -74,6 +74,17 @@ test("uploaded images are never sent to a server", async ({ page }) => {
   expect(outgoing.filter((r) => !r.includes("blob:"))).toEqual([]);
 });
 
+test("aspect ratio defaults to Native on load and after reset", async ({ page }) => {
+  const ratios = page.getByRole("radiogroup", { name: "Source image aspect ratio" });
+  await page.goto("/");
+  await expect(ratios.getByRole("radio", { name: "Native" })).toHaveAttribute("aria-checked", "true");
+  await ratios.getByRole("radio", { name: "1:1" }).click();
+  await expect(ratios.getByRole("radio", { name: "1:1" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(ratios.getByRole("radio", { name: "Native" })).toHaveAttribute("aria-checked", "true");
+  await expect(page).toHaveURL(/ar=native/);
+});
+
 test("crop area can be dragged to choose which part of the image is used", async ({ page }) => {
   // Landscape is 1920×1072; at 1:1 the crop box is 1072×1072 with 848px of slack.
   await page.goto(`/?v=1&vw=430&ar=1:1&view=source`);

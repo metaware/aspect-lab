@@ -187,6 +187,7 @@ describe("effective source", () => {
   });
   it("simulate reports source crop and component crop independently", () => {
     const cfg = createDefaultConfig();
+    cfg.image.aspectRatio = "9:16";
     const s = simulate({ ...cfg, viewport: { ...cfg.viewport, width: 430 } }, { width: 2400, height: 1600 });
     expect(s.effective.sourceCroppedPercentage).toBeCloseTo(62.5, 6);
     expect(s.metrics.imageCroppedPercentage).toBeCloseTo(16.28, 2);

@@ -27,6 +27,8 @@ function input(config: SimulatorConfig, withPlan = false): CodegenInput {
 
 function gen(format: CodeFormat, mutate?: (c: SimulatorConfig) => void, withPlan = false): string {
   const config = createDefaultConfig();
+  // These expectations use a cropped 9:16 source asset as their baseline.
+  config.image.aspectRatio = "9:16";
   mutate?.(config);
   return generateCode(format, input(config, withPlan));
 }

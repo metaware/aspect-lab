@@ -8,6 +8,9 @@ describe("configuration", () => {
   it("defaults validate", () => {
     expect(parseConfig(createDefaultConfig()).errors).toEqual([]);
   });
+  it("defaults to the native source aspect ratio", () => {
+    expect(createDefaultConfig().image.aspectRatio).toBe("native");
+  });
   it("round-trips through the URL", () => {
     const cfg = createDefaultConfig();
     cfg.viewport.width = 430;
@@ -36,7 +39,7 @@ describe("configuration", () => {
     expect(p.get("vw")).toBe("430");
     expect(p.get("mode")).toBe("fixed");
     expect(p.get("h")).toBe("640");
-    expect(p.get("ar")).toBe("9:16");
+    expect(p.get("ar")).toBe("native");
     expect(p.get("x")).toBe("50");
   });
   it("never shares local upload URLs", () => {
