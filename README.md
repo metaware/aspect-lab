@@ -18,7 +18,8 @@ pnpm dev            # http://localhost:3000
 | `pnpm test` | Vitest unit tests for the geometry engine, optimizer, config and codegen |
 | `pnpm test:e2e` | Playwright end-to-end tests (builds into `.next-e2e`, so it is safe to run alongside `pnpm dev`) |
 | `pnpm typecheck` | `tsc --noEmit` (strict mode) |
-| `node scripts/generate-samples.mjs` | Regenerates the sample illustrations in `public/samples` |
+| `node scripts/import-photos.mjs id=path …` | Imports photographs as sample images |
+| `node scripts/generate-samples.mjs` | Regenerates the illustrated samples (skyline, wildlife, abstract) |
 
 Optional: set `NEXT_PUBLIC_GITHUB_URL` to show a GitHub link in the header.
 
@@ -60,4 +61,8 @@ Design tokens (light and dark) live in `src/app/globals.css`, and components use
 
 ## Sample images
 
-The sample library contains original illustrations generated in code by `scripts/generate-samples.mjs`. They are part of this project and can be redistributed with it. The calibration grid and technical test image are generated at runtime at any aspect ratio.
+The sample library mixes supplied photographs with original illustrations:
+
+- **Photographs** (landscape, portrait, architecture, product, group, interior) are converted with `node scripts/import-photos.mjs <id>=<file> …`, which writes the full-size WebP (max 2400px) and a 480px thumbnail. Update the dimensions and focal point in `src/lib/assets/sample-images.ts` to match. Confirm you have redistribution rights before deploying publicly.
+- **Illustrations** (skyline, wildlife, abstract) are generated in code by `scripts/generate-samples.mjs`. They are original to this project, and the script never overwrites the photographs.
+- The calibration grid and the technical test image are generated at runtime, at any aspect ratio.

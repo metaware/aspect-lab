@@ -694,7 +694,10 @@ const SAMPLES = { landscape, portrait, architecture, product, skyline, group, wi
 
 await mkdir(THUMBS, { recursive: true });
 const only = process.argv.slice(2);
+// These samples are photographs (see scripts/import-photos.mjs); never overwrite them.
+const PHOTOS = new Set(["landscape", "portrait", "architecture", "product", "group", "interior"]);
 for (const [id, build] of Object.entries(SAMPLES)) {
+  if (PHOTOS.has(id)) continue;
   if (only.length && !only.includes(id)) continue;
   const { W, H, svg: s } = build();
   const full = path.join(OUT, `${id}.webp`);

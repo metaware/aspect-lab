@@ -16,6 +16,8 @@ import { ZoomControl } from "./zoom-toolbar";
 import { SourceImagePreview, CropLegend } from "./source-image-preview";
 
 const PADDING = 88;
+/** Extra bottom padding so the floating toolbar never covers the component. */
+const TOOLBAR_INSET = 40;
 
 const HEIGHT_LABELS: Record<string, string> = {
   fixed: "Fixed",
@@ -34,6 +36,7 @@ function containerLeft(widthMode: string, viewport: number, container: number, g
 
 export function PreviewCanvas() {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const model = usePreviewModel();
   const { config, sim, source } = model;
   const ws = config.workspace;
@@ -43,11 +46,18 @@ export function PreviewCanvas() {
   const vw = config.viewport.width;
   const stageWidth = Math.max(vw, Cw);
 
-  const { zoom, zoomMode, setZoom, setFit, stepZoom } = useCanvasZoom(
+  const { zoom, zoomMode, setZoom, setFit, stepZoom, box } = useCanvasZoom(
     scrollerRef,
     { width: ws.view === "split" ? stageWidth * 2.1 : stageWidth, height: Ch },
     PADDING,
+    ws.view,
+    // Anchor on the component alone only when it is the only thing on the canvas.
+    ws.view === "component" ? stageRef : undefined,
+    TOOLBAR_INSET,
   );
+  // In split view the cropping card takes whatever width is left beside the
+  // component (gap-16 = 64px between them), within a readable range.
+  const splitCardWidth = Math.min(520, Math.max(240, box.width - stageWidth * zoom - PADDING * 2 - 64));
   const [panMode, setPanMode] = useState(false);
   const { panActive, panning } = useSpacePan(scrollerRef, panMode);
   const safeZone = useSafeZone(ws.showSafeZone);
@@ -69,7 +79,7 @@ export function PreviewCanvas() {
   const rangeLabel = `${config.analysis.minViewport}–${config.analysis.maxViewport}px`;
 
   const stage = (
-    <div className="relative shrink-0" style={{ width: stageWidth * zoom, height: Ch * zoom }}>
+    <div ref={stageRef} className="relative shrink-0" style={{ width: stageWidth * zoom, height: Ch * zoom }}>
       {showViewportFrame && (
         <div
           className="pointer-events-none absolute top-0 border-y border-dashed border-accent/50"
@@ -149,10 +159,10 @@ export function PreviewCanvas() {
         >
           <div
             className="flex min-h-full min-w-full w-max items-center justify-center gap-16"
-            style={{ padding: PADDING, paddingBottom: PADDING + 40 }}
+            style={{ padding: PADDING, paddingBottom: PADDING + TOOLBAR_INSET }}
           >
             {ws.view !== "source" && stage}
-            {ws.view !== "component" && (ws.view === "split" ? <div className="w-[min(42vw,520px)]">{sourceView}</div> : sourceView)}
+            {ws.view !== "component" && (ws.view === "split" ? <div style={{ width: splitCardWidth }}>{sourceView}</div> : sourceView)}
           </div>
         </div>
 
@@ -241,7 +251,7 @@ function ToolButton({
         )}
       >
         <Icon />
-        <span className="hidden xl:inline">{label}</span>
+        <span className="hidden whitespace-nowrap 2xl:inline">{label}</span>
       </button>
     </Tooltip>
   );

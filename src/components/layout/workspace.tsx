@@ -30,11 +30,13 @@ export function Workspace() {
         className={cn(
           "grid flex-1 grid-cols-[minmax(0,1fr)] transition-opacity duration-200",
           // Desktop: three stationary-height columns that scroll independently.
-          "lg:h-[calc(100dvh-3.5rem)] lg:min-h-[640px] lg:grid-cols-[296px_minmax(0,1fr)_288px] xl:grid-cols-[312px_minmax(0,1fr)_300px]",
+          // flex-none lets the explicit height win over flex-basis, and the
+          // minmax(0,1fr) row stops zoomed canvas content from stretching it.
+          "lg:h-[calc(100dvh-3.5rem)] lg:min-h-[640px] lg:flex-none lg:grid-rows-[minmax(0,1fr)] lg:grid-cols-[296px_minmax(0,1fr)_288px] xl:grid-cols-[312px_minmax(0,1fr)_300px]",
           hydrated ? "opacity-100" : "opacity-0",
         )}
       >
-        <aside aria-label="Configuration" className="border-b border-border bg-panel lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-r scrollbar-thin">
+        <aside aria-label="Configuration" className="border-b border-border bg-panel lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:border-b-0 lg:border-r scrollbar-thin">
           <button
             type="button"
             className="flex w-full items-center justify-between px-4 py-3 text-[13px] font-medium lg:hidden"
@@ -54,7 +56,7 @@ export function Workspace() {
         <div className="h-[72dvh] min-h-[480px] min-w-0 lg:h-auto lg:min-h-0">
           <PreviewCanvas />
         </div>
-        <aside aria-label="Inspector" className="border-t border-border bg-panel lg:min-h-0 lg:overflow-y-auto lg:border-l lg:border-t-0 scrollbar-thin">
+        <aside aria-label="Inspector" className="border-t border-border bg-panel lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:border-l lg:border-t-0 scrollbar-thin">
           <InspectorPanel />
         </aside>
       </main>
