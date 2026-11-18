@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic design tokens. Components reference these, never raw colors. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.985 0.002 260);
+  --foreground: oklch(0.21 0.01 270);
+  --panel: oklch(1 0 0);
+  --surface: oklch(0.97 0.003 270);
+  --surface-hover: oklch(0.945 0.004 270);
+  --border: oklch(0.91 0.005 270);
+  --border-strong: oklch(0.84 0.007 270);
+  --muted-foreground: oklch(0.5 0.012 270);
+  --subtle-foreground: oklch(0.62 0.01 270);
+  --accent: oklch(0.55 0.2 285);
+  --accent-hover: oklch(0.5 0.21 285);
+  --accent-foreground: oklch(0.99 0 0);
+  --accent-soft: oklch(0.55 0.2 285 / 0.1);
+  --accent-text: oklch(0.48 0.2 285);
+  --visible: oklch(0.6 0.14 162);
+  --visible-soft: oklch(0.6 0.14 162 / 0.14);
+  --visible-text: oklch(0.47 0.12 162);
+  --cropped: oklch(0.2 0.006 270 / 0.62);
+  --cropped-hatch: oklch(1 0 0 / 0.16);
+  --source-cropped: oklch(0.2 0.006 270 / 0.82);
+  --warning: oklch(0.75 0.15 75);
+  --warning-text: oklch(0.52 0.13 65);
+  --warning-soft: oklch(0.78 0.15 75 / 0.15);
+  --danger: oklch(0.6 0.15 25);
+  --danger-text: oklch(0.5 0.15 25);
+  --danger-soft: oklch(0.6 0.15 25 / 0.12);
+  --canvas: oklch(0.955 0.003 270);
+  --canvas-dot: oklch(0.8 0.006 270);
+  --guide: oklch(0.45 0.01 270);
+  --ring: oklch(0.55 0.2 285 / 0.55);
+  --shadow: 0 1px 2px oklch(0.2 0.01 270 / 0.06), 0 1px 1px oklch(0.2 0.01 270 / 0.03);
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #6250d6;
+  --chart-5: #e87ba4;
+  --chart-6: #eda100;
+  color-scheme: light;
+}
+
+.dark {
+  --background: oklch(0.17 0.006 270);
+  --foreground: oklch(0.94 0.004 270);
+  --panel: oklch(0.195 0.007 270);
+  --surface: oklch(0.225 0.008 270);
+  --surface-hover: oklch(0.255 0.009 270);
+  --border: oklch(0.28 0.009 270);
+  --border-strong: oklch(0.35 0.01 270);
+  --muted-foreground: oklch(0.7 0.01 270);
+  --subtle-foreground: oklch(0.58 0.01 270);
+  --accent: oklch(0.68 0.17 285);
+  --accent-hover: oklch(0.73 0.15 285);
+  --accent-foreground: oklch(0.15 0.02 285);
+  --accent-soft: oklch(0.68 0.17 285 / 0.16);
+  --accent-text: oklch(0.8 0.12 285);
+  --visible: oklch(0.77 0.14 162);
+  --visible-soft: oklch(0.77 0.14 162 / 0.14);
+  --visible-text: oklch(0.8 0.13 162);
+  --cropped: oklch(0.12 0.005 270 / 0.66);
+  --cropped-hatch: oklch(1 0 0 / 0.12);
+  --source-cropped: oklch(0.1 0.005 270 / 0.84);
+  --warning: oklch(0.8 0.14 78);
+  --warning-text: oklch(0.84 0.12 80);
+  --warning-soft: oklch(0.8 0.14 78 / 0.13);
+  --danger: oklch(0.68 0.14 25);
+  --danger-text: oklch(0.76 0.12 25);
+  --danger-soft: oklch(0.68 0.14 25 / 0.14);
+  --canvas: oklch(0.155 0.006 270);
+  --canvas-dot: oklch(0.3 0.008 270);
+  --guide: oklch(0.72 0.01 270);
+  --ring: oklch(0.7 0.16 285 / 0.6);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3);
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #9085e9;
+  --chart-5: #d55181;
+  --chart-6: #c98500;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-panel: var(--panel);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-visible: var(--visible);
+  --color-visible-soft: var(--visible-soft);
+  --color-visible-text: var(--visible-text);
+  --color-cropped: var(--cropped);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-text: var(--danger-text);
+  --color-danger-soft: var(--danger-soft);
+  --color-canvas: var(--canvas);
+  --color-guide: var(--guide);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --shadow-panel: var(--shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--accent-soft);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .canvas-dots {
+    background-color: var(--canvas);
+    background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .hatch {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--cropped-hatch) 0 1px,
+      transparent 1px 7px
+    );
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .checkerboard {
+    background-color: var(--surface);
+    background-image:
+      linear-gradient(45deg, var(--border) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--border) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--border) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shiki dual-theme output */
+.shiki,
+.shiki span {
+  background-color: transparent !important;
+}
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark) !important;
 }
