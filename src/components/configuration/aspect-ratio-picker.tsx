@@ -13,6 +13,7 @@ import {
 } from "@/lib/assets/aspect-ratios";
 import { Label, NumberInput, Segmented, Slider } from "@/components/ui/controls";
 import { Button } from "@/components/ui/button";
+import { InfoButton } from "@/components/docs/info-button";
 import { useSimulation } from "@/hooks/use-simulator";
 import { cropPositionForFocalPoint } from "@/lib/geometry/effective-source";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays";
@@ -158,7 +159,7 @@ function SourceCropPosition() {
   if (axes.length === 0) return null;
   return (
     <div className="space-y-2.5 rounded-md border border-border p-2.5" data-testid="source-crop-position">
-      <Label hint="Which part of the original is kept when cropping to this ratio. Drag the dashed box in the cropping preview, or use the slider. This is separate from object-position, which crops again inside the container.">
+      <Label aside={<InfoButton topic="crop-area" />} hint="Which part of the original is kept when cropping to this ratio. Drag the dashed box in the cropping preview, or use the slider. This is separate from object-position, which crops again inside the container.">
         Crop area
       </Label>
       {axes.map((a) => (

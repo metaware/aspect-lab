@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { LineChart, Columns3, Target, Layers, Code2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/overlays";
+import { InfoButton } from "@/components/docs/info-button";
 
 function Loading() {
   return <div className="h-[320px] animate-pulse rounded-lg bg-surface" aria-busy="true" aria-label="Loading" />;
@@ -17,11 +18,11 @@ const AssetRecommendations = dynamic(() => import("./asset-recommendations").the
 const CodeGenerator = dynamic(() => import("@/components/export/code-generator").then((m) => m.CodeGenerator), { ssr: false, loading: Loading });
 
 const TABS = [
-  { value: "cropping", label: "Cropping analysis", icon: LineChart, blurb: "How cropping changes as the viewport grows, per source ratio." },
-  { value: "compare", label: "Compare", icon: Columns3, blurb: "The same component across widths or ratios, at one shared scale." },
-  { value: "optimizer", label: "Breakpoint optimizer", icon: Target, blurb: "Best source ratios per breakpoint range." },
-  { value: "assets", label: "Asset planner", icon: Layers, blurb: "How many image variants you need, and at what resolution." },
-  { value: "code", label: "Code", icon: Code2, blurb: "Implementation for the current configuration." },
+  { value: "cropping", topic: "cropping-chart" as const, label: "Cropping analysis", icon: LineChart, blurb: "How cropping changes as the viewport grows, per source ratio." },
+  { value: "compare", topic: "compare" as const, label: "Compare", icon: Columns3, blurb: "The same component across widths or ratios, at one shared scale." },
+  { value: "optimizer", topic: "optimizer" as const, label: "Breakpoint optimizer", icon: Target, blurb: "Best source ratios per breakpoint range." },
+  { value: "assets", topic: "asset-planner" as const, label: "Asset planner", icon: Layers, blurb: "How many image variants you need, and at what resolution." },
+  { value: "code", topic: "code" as const, label: "Code", icon: Code2, blurb: "Implementation for the current configuration." },
 ];
 
 export function AnalyticsSection() {
@@ -35,7 +36,10 @@ export function AnalyticsSection() {
             <h2 id="analytics-heading" className="text-[15px] font-semibold">
               Analysis
             </h2>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">{active.blurb}</p>
+            <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted-foreground">
+              {active.blurb}
+              <InfoButton topic={active.topic} />
+            </p>
           </div>
           <TabsList label="Analysis views">
             {TABS.map(({ value, label, icon: Icon }) => (

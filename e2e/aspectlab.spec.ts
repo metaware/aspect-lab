@@ -74,6 +74,21 @@ test("uploaded images are never sent to a server", async ({ page }) => {
   expect(outgoing.filter((r) => !r.includes("blob:"))).toEqual([]);
 });
 
+test("info buttons open illustrated help and link to the docs", async ({ page }) => {
+  await page.goto("/");
+  for (const id of ["source-image", "aspect-ratio", "viewport", "container-width", "container-height", "object-fit", "position", "focal-point", "overlay", "canvas", "inspector", "cropping-chart"]) {
+    await expect(page.getByTestId(`info-${id}`).first()).toBeAttached();
+  }
+  await page.getByTestId("info-object-fit").click();
+  const dialog = page.getByRole("dialog", { name: "Object fit" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator("figure > div > svg")).toHaveCount(5);
+  await dialog.getByRole("link", { name: "Open in documentation" }).click();
+  await expect(page).toHaveURL(/\/docs\/?#object-fit$/);
+  await expect(page.locator("article")).toHaveCount(19);
+  await expect(page.getByRole("heading", { name: "Safe zone" })).toBeVisible();
+});
+
 test("aspect ratio defaults to Native on load and after reset", async ({ page }) => {
   const ratios = page.getByRole("radiogroup", { name: "Source image aspect ratio" });
   await page.goto("/");

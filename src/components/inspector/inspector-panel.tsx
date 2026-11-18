@@ -9,6 +9,7 @@ import { normalizeRatio, formatDecimal } from "@/lib/assets/aspect-ratios";
 import { DEVICE_PIXEL_RATIOS } from "@/lib/assets/device-presets";
 import { Segmented } from "@/components/ui/controls";
 import { Section } from "@/components/ui/overlays";
+import { InfoButton } from "@/components/docs/info-button";
 import { SourceImagePreview, CropLegend } from "@/components/preview/source-image-preview";
 import { cn, fmt, fmtBytes, fmtPct, fmtPx, fmtSize } from "@/lib/utils";
 import type { DevicePixelRatio } from "@/types/simulator";
@@ -126,7 +127,10 @@ export function InspectorPanel() {
 
   return (
     <div className="px-4 pb-6 pt-4">
-      <h2 className="mb-3 text-[15px] font-semibold">Image inspector</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-[15px] font-semibold">Image inspector</h2>
+        <InfoButton topic="inspector" />
+      </div>
       <Headline sim={sim} />
 
       <div className="mt-5 space-y-2">
@@ -146,7 +150,7 @@ export function InspectorPanel() {
         <Row label="Right crop" value={fmtPx(m.crop.right)} tone={m.crop.right > 0.05 ? undefined : "muted"} />
       </dl>
 
-      <Section title="Quality">
+      <Section title="Quality" aside={<InfoButton topic="inspector" />}>
         <ul className="space-y-1.5">
           {indicators.map((i) => {
             const Icon = TONE_ICON[i.tone];
@@ -258,7 +262,7 @@ export function InspectorPanel() {
       )}
 
       {safeZone && (
-        <Section title="Safe zone">
+        <Section title="Safe zone" aside={<InfoButton topic="safe-zone" />}>
           <dl>
             <Row label="Range" value={`${config.analysis.minViewport}–${config.analysis.maxViewport}px`} />
             <Row label="Always visible" value={fmtPct(safeZone.safePercentage)} tone="visible" />

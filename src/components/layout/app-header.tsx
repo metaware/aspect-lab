@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun, RotateCcw, Link2, Keyboard } from "lucide-react";
+import Link from "next/link";
+import { Monitor, Moon, Sun, RotateCcw, Link2, Keyboard, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useSimulatorStore } from "@/store/simulator-store";
@@ -81,6 +82,16 @@ export function AppHeader() {
       </div>
       <div className="flex items-center gap-1.5">
         <ThemeToggle />
+        <Tooltip content="Documentation & usage guide" side="bottom">
+          <Link
+            href="/docs"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+          >
+            <BookOpen className="size-3.5" aria-hidden />
+            <span className="hidden md:inline">Guide</span>
+            <span className="sr-only md:hidden">Guide</span>
+          </Link>
+        </Tooltip>
         <Tooltip content="Keyboard shortcuts (?)" side="bottom">
           <Button variant="ghost" size="icon" aria-label="Keyboard shortcuts" onClick={() => setShortcutsOpen(true)} className="hidden md:inline-flex">
             <Keyboard />

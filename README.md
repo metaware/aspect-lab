@@ -35,6 +35,10 @@ AspectLab is fully client-side, so it can be hosted as plain static files.
 
 A static host needs `build:static`. Plain `next build` produces a Node server bundle in `.next/`, not HTML files, so a static host would serve "Not Found" for every URL.
 
+## Documentation
+
+The app has an illustrated guide at **`/docs`** (the header's **Guide** link). Every configurable section, analysis tab, the canvas and the inspector also have an **ⓘ** button that opens the same topic in a modal. Content lives in `src/components/docs/topics.tsx`. Diagrams in `src/components/docs/illustrations.tsx` are drawn with the real geometry engine, so they stay accurate if the math changes. Add or edit a topic there and it appears in both places.
+
 ## What it does
 
 - **Constant-scale component preview.** The container is rendered at its true CSS size and scaled by a fixed zoom, so the browser's own `object-fit`/`object-position` does the rendering. With a fixed height, the preview height stays the same at every viewport width. Auto-fit is an explicit mode and never silently replaces a manual zoom.

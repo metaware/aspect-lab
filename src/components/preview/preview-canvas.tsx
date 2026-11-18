@@ -13,6 +13,7 @@ import type { PreviewView } from "@/types/simulator";
 import { ComponentPreview } from "./component-preview";
 import { DimensionGuides, Rulers } from "./dimension-guides";
 import { ZoomControl } from "./zoom-toolbar";
+import { InfoButton } from "@/components/docs/info-button";
 import { SourceImagePreview, CropLegend } from "./source-image-preview";
 
 const PADDING = 88;
@@ -131,6 +132,7 @@ export function PreviewCanvas() {
           <h2 className="text-[13px] font-medium">
             {ws.view === "source" ? "Cropping preview" : ws.view === "split" ? "Split view" : "Component preview"}
           </h2>
+          <InfoButton topic="canvas" className="-ml-2" />
           <Segmented<PreviewView>
             label="Preview mode"
             size="sm"
