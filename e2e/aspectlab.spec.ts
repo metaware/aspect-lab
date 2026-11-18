@@ -74,6 +74,31 @@ test("uploaded images are never sent to a server", async ({ page }) => {
   expect(outgoing.filter((r) => !r.includes("blob:"))).toEqual([]);
 });
 
+test("crop area can be dragged to choose which part of the image is used", async ({ page }) => {
+  // Landscape is 1920×1072; at 1:1 the crop box is 1072×1072 with 848px of slack.
+  await page.goto(`/?v=1&vw=430&ar=1:1&view=source`);
+  const box = page.getByTestId("source-preview").getByTestId("source-crop-box").locator("rect").first();
+  await expect(box).toBeVisible();
+  await expect(page.getByText("Crop area origin")).toBeVisible();
+
+  const b = (await box.boundingBox())!;
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(b.x + b.width / 2 - b.width * 2, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.up();
+
+  await expect(page).toHaveURL(/scx=0(&|$)/);
+  await expect(page.getByLabel("Horizontal crop area position percent")).toHaveValue("0");
+  // Inspector: origin moved to the left edge.
+  await expect(page.locator("dd", { hasText: /^0, 0$/ })).toBeVisible();
+
+  // Keyboard: Shift+ArrowRight moves by 10%.
+  await box.focus();
+  await page.keyboard.press("Shift+ArrowRight");
+  await expect(page.getByLabel("Horizontal crop area position percent")).toHaveValue("10");
+  await expect(page).toHaveURL(/scx=10(&|$)/);
+});
+
 test.describe("canvas scrolling", () => {
   test.use({ viewport: { width: 1290, height: 810 } });
 

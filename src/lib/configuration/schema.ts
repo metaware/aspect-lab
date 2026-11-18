@@ -25,6 +25,8 @@ export const configSchema = z.object({
     aspectRatioStrategy: z.enum(["native", "crop", "distort"]),
     focalPoint: z.object({ x: unit, y: unit }).nullable(),
     keepFocalCentered: z.boolean(),
+    sourceCropX: unit,
+    sourceCropY: unit,
   }),
   container: z.object({
     widthMode: z.enum(["full", "percent", "fixed", "max", "grid"]),

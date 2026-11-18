@@ -179,6 +179,15 @@ export function InspectorPanel() {
           <Row label="Effective ratio" value={ratioText(e.width, e.height)} />
           <Row label="Sizing strategy" value={e.strategy === "crop" ? "Crop to ratio" : e.strategy === "distort" ? "Resize (distort)" : "Native"} tone={e.distorted ? "danger" : undefined} />
           <Row label="Removed by source crop" value={fmtPct(e.sourceCroppedPercentage)} tone={e.sourceCroppedPercentage > 0.05 ? "warning" : "muted"} />
+          {e.strategy === "crop" && e.sourceCroppedPercentage > 0.05 && (
+            <>
+              <Row label="Crop area origin" value={`${fmt(e.sourceRect.x, 0)}, ${fmt(e.sourceRect.y, 0)}`} />
+              <Row
+                label="Crop area position"
+                value={`${fmt(config.image.sourceCropX * 100)}% ${fmt(config.image.sourceCropY * 100)}%`}
+              />
+            </>
+          )}
           <Row label="Format" value={source.meta.format ?? "—"} />
           <Row label="File size" value={fmtBytes(source.meta.fileSize)} />
         </dl>

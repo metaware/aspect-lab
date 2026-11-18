@@ -85,6 +85,13 @@ export interface SimulatorConfig {
     /** Focal point in original image coordinates (0–1). */
     focalPoint: UnitPoint | null;
     keepFocalCentered: boolean;
+    /**
+     * Where the "crop to selected ratio" box sits inside the original (0–1 on
+     * each axis, like object-position). Independent of the container's
+     * object-position, which applies afterwards.
+     */
+    sourceCropX: number;
+    sourceCropY: number;
   };
   container: ContainerConfig;
   rendering: {

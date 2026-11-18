@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { computeCropMetrics } from "@/lib/geometry/cropping";
 import { computeFit } from "@/lib/geometry/object-fit";
 import { resolveContainer, gridSpanWidth } from "@/lib/geometry/resolve-container";
-import { computeEffectiveSource } from "@/lib/geometry/effective-source";
+import { computeEffectiveSource, cropPositionForFocalPoint } from "@/lib/geometry/effective-source";
 import { positionForFocalPoint } from "@/lib/geometry/focal-point";
 import { simulate } from "@/lib/geometry/simulate";
 import { computeSafeZone } from "@/lib/geometry/safe-zone";
@@ -150,6 +150,34 @@ describe("effective source", () => {
     expect(e.sourceRect.x).toBeCloseTo(750, 8);
     expect(e.sourceCroppedPercentage).toBeCloseTo(62.5, 8);
     expect(e.distorted).toBe(false);
+  });
+  it("crop position chooses which part of the original becomes the asset", () => {
+    // 1920×1072 → 1:1 leaves 848px of horizontal slack.
+    const left = computeEffectiveSource(1920, 1072, 1, "crop", { x: 0, y: 0.5 });
+    const right = computeEffectiveSource(1920, 1072, 1, "crop", { x: 1, y: 0.5 });
+    const mid = computeEffectiveSource(1920, 1072, 1, "crop", { x: 0.25, y: 0.5 });
+    expect(left.sourceRect).toEqual({ x: 0, y: 0, width: 1072, height: 1072 });
+    expect(right.sourceRect.x).toBeCloseTo(848, 8);
+    expect(mid.sourceRect.x).toBeCloseTo(212, 8);
+    // Position doesn't change size or the amount removed.
+    expect(right.sourceCroppedPercentage).toBeCloseTo(left.sourceCroppedPercentage, 10);
+    // Out-of-range positions clamp inside the image.
+    expect(computeEffectiveSource(1920, 1072, 1, "crop", { x: 2, y: -1 }).sourceRect.x).toBeCloseTo(848, 8);
+  });
+  it("aligns the crop box to a focal point, clamped to the image", () => {
+    expect(cropPositionForFocalPoint({ x: 0.5, y: 0.5 }, 1920, 1072, 1)).toEqual({ x: 0.5, y: 0.5 });
+    const p = cropPositionForFocalPoint({ x: 0.3, y: 0.5 }, 1920, 1072, 1);
+    // Box center (x + 536) lands on the focal point at 576px.
+    expect(p.x * 848 + 536).toBeCloseTo(576, 8);
+    expect(cropPositionForFocalPoint({ x: 0.02, y: 0.5 }, 1920, 1072, 1).x).toBe(0);
+  });
+  it("simulate applies the configured crop position", () => {
+    const cfg = createDefaultConfig();
+    cfg.image.aspectRatio = "1:1";
+    cfg.image.sourceCropX = 0;
+    const s = simulate(cfg, { width: 1920, height: 1072 });
+    expect(s.effective.sourceRect.x).toBe(0);
+    expect(s.effective.width).toBeCloseTo(1072, 8);
   });
   it("distort keeps the full frame and flags distortion", () => {
     const e = computeEffectiveSource(2400, 1600, 9 / 16, "distort");

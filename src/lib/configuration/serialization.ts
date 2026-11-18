@@ -19,6 +19,8 @@ const SHORT_KEYS: Record<string, string> = {
   "image.aspectRatioStrategy": "as",
   "image.focalPoint": "focal",
   "image.keepFocalCentered": "fc",
+  "image.sourceCropX": "scx",
+  "image.sourceCropY": "scy",
   "container.widthMode": "wm",
   "container.horizontalGutter": "gut",
   "container.widthPercent": "wp",
@@ -60,7 +62,12 @@ const SHORT_KEYS: Record<string, string> = {
 const ALWAYS = ["viewport.width", "container.heightMode", "container.height", "image.aspectRatio", "rendering.objectFit", "rendering.objectPositionX", "rendering.objectPositionY"];
 
 /** Paths stored as 0–1 internally but shown as percentages in URLs. */
-const PERCENT_PATHS = new Set(["rendering.objectPositionX", "rendering.objectPositionY"]);
+const PERCENT_PATHS = new Set([
+  "rendering.objectPositionX",
+  "rendering.objectPositionY",
+  "image.sourceCropX",
+  "image.sourceCropY",
+]);
 
 const LONG_KEYS = Object.fromEntries(Object.entries(SHORT_KEYS).map(([path, key]) => [key, path]));
 

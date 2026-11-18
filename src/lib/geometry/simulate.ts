@@ -50,7 +50,10 @@ export function simulate(
   const strategy = config.image.source === "test" ? "native" : config.image.aspectRatioStrategy;
   const originalSize =
     config.image.source === "test" && ratio != null ? testImageSize(ratio) : original;
-  const effective = computeEffectiveSource(originalSize.width, originalSize.height, ratio, strategy);
+  const effective = computeEffectiveSource(originalSize.width, originalSize.height, ratio, strategy, {
+    x: config.image.sourceCropX,
+    y: config.image.sourceCropY,
+  });
 
   const viewport = { ...config.viewport, width: overrides.viewportWidth ?? config.viewport.width };
   const container = resolveContainer(config.container, viewport, effective.width / effective.height);

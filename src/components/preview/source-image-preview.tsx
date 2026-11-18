@@ -28,6 +28,7 @@ export function SourceImagePreview({
   src,
   safeZone,
   showMeasurements = true,
+  editableCrop = true,
   className,
   maxHeight,
   rangeLabel,
@@ -39,6 +40,8 @@ export function SourceImagePreview({
   className?: string;
   maxHeight?: number | string;
   rangeLabel?: string;
+  /** Allow dragging the source crop box (off for static thumbnails). */
+  editableCrop?: boolean;
 }) {
   const id = useId().replace(/:/g, "");
   const ref = useRef<SVGSVGElement>(null);
@@ -47,6 +50,7 @@ export function SourceImagePreview({
   const focalPoint = useSimulatorStore((s) => s.config.image.focalPoint);
   const patch = useSimulatorStore((s) => s.patch);
   const setFocalPicking = useSimulatorStore((s) => s.setFocalPicking);
+  const image = useSimulatorStore((s) => s.config.image);
 
   useEffect(() => {
     const el = ref.current;
@@ -78,6 +82,47 @@ export function SourceImagePreview({
     setFocalPicking(false);
   };
 
+  // Draggable "crop to ratio" box: moves which region of the original becomes the asset.
+  const slackX = W - sourceRect.width;
+  const slackY = H - sourceRect.height;
+  const cropMovable = editableCrop && sim.effective.strategy === "crop" && sourceCropped && (slackX > 0.5 || slackY > 0.5);
+  const drag = useRef<{ x: number; y: number; rx: number; ry: number; scale: number } | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [cropFocused, setCropFocused] = useState(false);
+
+  const setCropFromRect = (rx: number, ry: number) =>
+    patch("image", {
+      sourceCropX: slackX > 0.5 ? Math.round(Math.min(1, Math.max(0, rx / slackX)) * 1000) / 1000 : 0.5,
+      sourceCropY: slackY > 0.5 ? Math.round(Math.min(1, Math.max(0, ry / slackY)) * 1000) / 1000 : 0.5,
+    });
+  const startCropDrag = (e: React.PointerEvent<SVGRectElement>) => {
+    if (focalPicking || e.button !== 0) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const box = ref.current!.getBoundingClientRect();
+    drag.current = { x: e.clientX, y: e.clientY, rx: sourceRect.x, ry: sourceRect.y, scale: W / box.width };
+    setDragging(true);
+  };
+  const moveCropDrag = (e: React.PointerEvent<SVGRectElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    setCropFromRect(d.rx + (e.clientX - d.x) * d.scale, d.ry + (e.clientY - d.y) * d.scale);
+  };
+  const endCropDrag = () => {
+    drag.current = null;
+    setDragging(false);
+  };
+  const onCropKey = (e: React.KeyboardEvent<SVGRectElement>) => {
+    const step = e.shiftKey ? 0.1 : 0.01;
+    const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    const m = moves[e.key];
+    if (!m) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const clamp01 = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
+    patch("image", { sourceCropX: clamp01(image.sourceCropX + m[0]), sourceCropY: clamp01(image.sourceCropY + m[1]) });
+  };
+
   const fs = 11 * k;
   const label = (text: string, x: number, y: number, anchor: "start" | "middle" | "end" = "middle") => (
     <text x={x} y={y} textAnchor={anchor} fontSize={fs} className="num" fill="white" stroke="rgba(0,0,0,0.55)" strokeWidth={3 * k} paintOrder="stroke">
@@ -92,7 +137,7 @@ export function SourceImagePreview({
       className={cn("block h-auto w-full select-none", focalPicking && "cursor-crosshair", className)}
       style={{ maxHeight, aspectRatio: `${W} / ${H}`, overflow: "visible" }}
       onClick={onClick}
-      role="img"
+      role={cropMovable ? "group" : "img"}
       aria-label={`Original image ${Math.round(W)} by ${Math.round(H)} pixels. ${fmtPct(sim.metrics.imageVisiblePercentage)} of the source asset is visible in the component${sourceCropped ? `; the source asset itself discards ${fmtPct(sim.effective.sourceCroppedPercentage)} of the original` : ""}.`}
       data-testid="source-preview"
     >
@@ -115,8 +160,38 @@ export function SourceImagePreview({
           <rect {...visible} fill="none" stroke="var(--visible)" strokeWidth={2 * k} />
         </>
       )}
-      {sourceCropped && (
+      {sourceCropped && !cropMovable && (
         <rect {...sourceRect} fill="none" stroke="var(--guide)" strokeDasharray={`${4 * k} ${3 * k}`} strokeWidth={1 * k} opacity={0.8} />
+      )}
+      {cropMovable && (
+        <g data-testid="source-crop-box">
+          <rect
+            {...sourceRect}
+            fill="transparent"
+            stroke="var(--accent)"
+            strokeDasharray={`${6 * k} ${4 * k}`}
+            strokeWidth={1.75 * k}
+            className={cn("outline-none", focalPicking ? "pointer-events-none" : dragging ? "cursor-grabbing" : "cursor-grab")}
+            tabIndex={focalPicking ? -1 : 0}
+            role="slider"
+            aria-label="Crop area position. Drag, or use arrow keys (Shift for larger steps)."
+            aria-valuetext={`${fmt(image.sourceCropX * 100)}% horizontal, ${fmt(image.sourceCropY * 100)}% vertical`}
+            aria-valuenow={Math.round((slackX > 0.5 ? image.sourceCropX : image.sourceCropY) * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            onPointerDown={startCropDrag}
+            onPointerMove={moveCropDrag}
+            onPointerUp={endCropDrag}
+            onPointerCancel={endCropDrag}
+            onKeyDown={onCropKey}
+            onFocus={() => setCropFocused(true)}
+            onBlur={() => setCropFocused(false)}
+          />
+          {cropFocused && (
+            <rect {...sourceRect} fill="none" stroke="var(--ring)" strokeWidth={4 * k} pointerEvents="none" />
+          )}
+          {displayWidth > 320 && <g pointerEvents="none">{label("Drag to choose the crop area", sourceRect.x + 6 * k, sourceRect.y + sourceRect.height - 8 * k, "start")}</g>}
+        </g>
       )}
 
       {safe && (

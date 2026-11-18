@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeftRight, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeftRight, ChevronDown, Crosshair, RotateCcw } from "lucide-react";
 import { useSimulatorStore } from "@/store/simulator-store";
 import {
   ASPECT_RATIO_CATEGORIES,
@@ -11,11 +11,14 @@ import {
   normalizeRatio,
   parseRatio,
 } from "@/lib/assets/aspect-ratios";
-import { Label, NumberInput, Segmented } from "@/components/ui/controls";
+import { Label, NumberInput, Segmented, Slider } from "@/components/ui/controls";
+import { Button } from "@/components/ui/button";
+import { useSimulation } from "@/hooks/use-simulator";
+import { cropPositionForFocalPoint } from "@/lib/geometry/effective-source";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useSourceImage } from "@/hooks/use-image-metadata";
-import { cn } from "@/lib/utils";
+import { cn, fmt } from "@/lib/utils";
 import type { AspectRatioStrategy } from "@/types/simulator";
 
 /** Ratio chooser used for both source and container ratios. */
@@ -33,6 +36,12 @@ export function RatioChooser({
   const parsed = value === "native" ? null : parseRatio(value);
   const [w, setW] = useState<number | null>(parsed?.width ?? 16);
   const [h, setH] = useState<number | null>(parsed?.height ?? 9);
+  // Keep the custom W:H fields in step with presets chosen elsewhere.
+  useEffect(() => {
+    if (!parsed) return;
+    setW(parsed.width);
+    setH(parsed.height);
+  }, [parsed?.width, parsed?.height]); // eslint-disable-line react-hooks/exhaustive-deps
   const quick = allowNative ? ["native", ...QUICK_RATIOS.slice(0, 5)] : QUICK_RATIOS;
   const isQuick = quick.includes(value);
 
@@ -128,6 +137,78 @@ export function RatioChooser({
   );
 }
 
+/**
+ * Chooses which region of the original becomes the cropped source asset.
+ * Only axes with room to move get a slider.
+ */
+function SourceCropPosition() {
+  const image = useSimulatorStore((s) => s.config.image);
+  const patch = useSimulatorStore((s) => s.patch);
+  const sim = useSimulation();
+  const { original, effective } = sim;
+  const slackX = original.width - effective.sourceRect.width;
+  const slackY = original.height - effective.sourceRect.height;
+  const ratio = effective.sourceRect.width / effective.sourceRect.height;
+  const set = (p: Partial<{ sourceCropX: number; sourceCropY: number }>) => patch("image", p);
+  const axes = [
+    { key: "sourceCropX" as const, label: "Horizontal", slack: slackX, value: image.sourceCropX, start: effective.sourceRect.x },
+    { key: "sourceCropY" as const, label: "Vertical", slack: slackY, value: image.sourceCropY, start: effective.sourceRect.y },
+  ].filter((a) => a.slack > 0.5);
+
+  if (axes.length === 0) return null;
+  return (
+    <div className="space-y-2.5 rounded-md border border-border p-2.5" data-testid="source-crop-position">
+      <Label hint="Which part of the original is kept when cropping to this ratio. Drag the dashed box in the cropping preview, or use the slider. This is separate from object-position, which crops again inside the container.">
+        Crop area
+      </Label>
+      {axes.map((a) => (
+        <div key={a.key} className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-muted-foreground">
+              {a.label} <span className="num text-subtle-foreground">· {fmt(a.start, 0)}px from {a.key === "sourceCropX" ? "left" : "top"}</span>
+            </span>
+            <NumberInput
+              label={`${a.label} crop area position percent`}
+              value={a.value * 100}
+              min={0}
+              max={100}
+              suffix="%"
+              digits={1}
+              className="w-[72px] [&_input]:h-6 [&_input]:text-[11px]"
+              onChange={(v) => v != null && set({ [a.key]: v / 100 })}
+            />
+          </div>
+          <Slider
+            label={`${a.label} crop area position`}
+            min={0}
+            max={100}
+            step={0.5}
+            value={a.value * 100}
+            onChange={(v) => set({ [a.key]: v / 100 })}
+          />
+        </div>
+      ))}
+      <div className="flex gap-1.5">
+        <Button size="sm" variant="ghost" onClick={() => set({ sourceCropX: 0.5, sourceCropY: 0.5 })}>
+          <RotateCcw /> Center
+        </Button>
+        {image.focalPoint && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              const p = cropPositionForFocalPoint(image.focalPoint!, original.width, original.height, ratio);
+              set({ sourceCropX: Math.round(p.x * 1000) / 1000, sourceCropY: Math.round(p.y * 1000) / 1000 });
+            }}
+          >
+            <Crosshair /> Align to focal point
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function AspectRatioPicker() {
   const image = useSimulatorStore((s) => s.config.image);
   const patch = useSimulatorStore((s) => s.patch);
@@ -167,6 +248,7 @@ export function AspectRatioPicker() {
           {image.aspectRatioStrategy === "distort" && image.aspectRatio !== "native" && (
             <p className="text-[11px] text-warning-text">Distortion mode: the photograph is stretched, not cropped.</p>
           )}
+          {image.aspectRatioStrategy === "crop" && image.aspectRatio !== "native" && <SourceCropPosition />}
         </div>
       ) : (
         <p className="text-[11px] text-muted-foreground">The test image is generated natively at this ratio.</p>

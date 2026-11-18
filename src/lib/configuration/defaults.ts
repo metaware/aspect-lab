@@ -26,6 +26,8 @@ export function createDefaultConfig(): SimulatorConfig {
       aspectRatioStrategy: "crop",
       focalPoint: null,
       keepFocalCentered: false,
+      sourceCropX: 0.5,
+      sourceCropY: 0.5,
     },
     container: {
       widthMode: "full",
